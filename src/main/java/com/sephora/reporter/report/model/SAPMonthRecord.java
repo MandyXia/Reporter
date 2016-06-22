@@ -1,26 +1,34 @@
 package com.sephora.reporter.report.model;
 
-import java.util.Date;
 import java.util.List;
 
 public class SAPMonthRecord {
-	private Store store;
-	private Date month;
+	private int storeCode;
+	private int year;
+	private int month;
 	List<SAPRecord> records;
 
-	public Store getStore() {
-		return store;
+	public int getStoreCode() {
+		return storeCode;
 	}
 
-	public void setStore(Store store) {
-		this.store = store;
+	public void setStoreCode(int storeCode) {
+		this.storeCode = storeCode;
 	}
 
-	public Date getMonth() {
+	public int getYear() {
+		return year;
+	}
+
+	public void setYear(int year) {
+		this.year = year;
+	}
+
+	public int getMonth() {
 		return month;
 	}
 
-	public void setMonth(Date month) {
+	public void setMonth(int month) {
 		this.month = month;
 	}
 

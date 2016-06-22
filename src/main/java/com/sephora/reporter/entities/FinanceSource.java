@@ -1,6 +1,5 @@
 package com.sephora.reporter.entities;
 
-import java.sql.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -12,8 +11,11 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "FinanceSource")
 public class FinanceSource extends BaseEntity {
-	@Column(name = "SourceDate")
-	private Date sourceDate;
+	@Column(name = "SourceYear")
+	private int sourceYear;
+	
+	@Column(name = "SourceMonth")
+	private int sourceMonth;
 
 	@Column(name = "SAPFileName")
 	private String sapFileName;
@@ -33,12 +35,20 @@ public class FinanceSource extends BaseEntity {
 	@OneToMany(fetch = FetchType.EAGER)
 	private List<FinanceReport> targetReports;
 
-	public Date getSourceDate() {
-		return sourceDate;
+	public int getSourceYear() {
+		return sourceYear;
 	}
 
-	public void setSourceDate(Date sourceDate) {
-		this.sourceDate = sourceDate;
+	public void setSourceYear(int sourceYear) {
+		this.sourceYear = sourceYear;
+	}
+
+	public int getSourceMonth() {
+		return sourceMonth;
+	}
+
+	public void setSourceMonth(int sourceMonth) {
+		this.sourceMonth = sourceMonth;
 	}
 
 	public String getSapFileName() {

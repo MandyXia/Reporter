@@ -1,42 +1,67 @@
 package com.sephora.reporter.report.model;
 
-import java.util.Date;
-
 public class SalesRecord {
-	private Store store;
-	private Date month;
-	private double vat;
-	private double cogs;
+	private int storeCode;
+	private int year;
+	private int month;
+	private double vatmtd;
+	private double vatytd;
+	private double cogsmtd;
+	private double cogsytd;
 
-	public Store getStore() {
-		return store;
+	public int getStoreCode() {
+		return storeCode;
 	}
 
-	public void setStore(Store store) {
-		this.store = store;
+	public void setStoreCode(int storeCode) {
+		this.storeCode = storeCode;
 	}
 
-	public double getVat() {
-		return vat;
+	public int getYear() {
+		return year;
 	}
 
-	public void setVat(double vat) {
-		this.vat = vat;
+	public void setYear(int year) {
+		this.year = year;
 	}
 
-	public double getCogs() {
-		return cogs;
-	}
-
-	public void setCogs(double cogs) {
-		this.cogs = cogs;
-	}
-
-	public Date getMonth() {
+	public int getMonth() {
 		return month;
 	}
 
-	public void setMonth(Date month) {
+	public void setMonth(int month) {
 		this.month = month;
+	}
+
+	public double getVatmtd() {
+		return vatmtd;
+	}
+
+	public void setVatmtd(double vatmtd) {
+		this.vatmtd = vatmtd;
+	}
+
+	public double getVatytd() {
+		return vatytd;
+	}
+
+	public void setVatytd(double vatytd) {
+		this.vatytd = vatytd;
+	}
+
+	public double getCogsmtd() {
+		return cogsmtd;
+	}
+
+	public void setCogsmtd(double cogsmtd) {
+		this.cogsmtd = cogsmtd;
+	}
+
+	public double getCogsytd() {
+		return cogsytd;
+	}
+
+	public void setCogsytd(double cogsytd) {
+		this.cogsytd = cogsytd;
 	}
 }

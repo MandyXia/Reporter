@@ -3,7 +3,6 @@ package com.sephora.reporter.report;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,14 +19,15 @@ import org.springframework.util.StringUtils;
 
 import com.sephora.reporter.report.model.SAPMonthRecord;
 import com.sephora.reporter.report.model.SAPRecord;
-import com.sephora.reporter.report.model.Store;
 
 public class SAPReader {
 	private static final int START_ROW = 11;
 	private Workbook wb;
-	private Date month;
+	private int year;
+	private int month;
 	
-	public SAPReader(String path, Date month) {
+	public SAPReader(String path, int year, int month) {
+		this.year = year;
 		this.month = month;
 		try {
 			this.wb = WorkbookFactory.create(new File(path));
@@ -36,7 +36,7 @@ public class SAPReader {
 		}
 	}
 	
-	public SAPMonthRecord read(Store store) {
+	public SAPMonthRecord read(int storeCode) {
 		Sheet sheet = this.wb.getSheetAt(0);
 		int lastRow = sheet.getLastRowNum();
 		SAPMonthRecord record = null;
@@ -47,9 +47,20 @@ public class SAPReader {
 				break;
 			}
 			
-			if (costCell.getCellStyle().getFillForegroundColor() == IndexedColors.YELLOW.index && costCell.getStringCellValue().contains(store.getName())) {
+			if (costCell.getCellStyle().getFillForegroundColor() == IndexedColors.YELLOW.index) {
+				String storeVal = midString(costCell.getStringCellValue());
+				if (!storeVal.startsWith("6")) {
+					continue;
+				}
+				
+				int sCode = Integer.parseInt(storeVal.substring(0, 4));
+				if (sCode != storeCode) {
+					continue;
+				}
+				
 				record = new SAPMonthRecord();
-				record.setStore(store);
+				record.setStoreCode(sCode);
+				record.setYear(year);
 				record.setMonth(month);
 				
 				List<SAPRecord> inners = new ArrayList<>();
@@ -75,11 +86,11 @@ public class SAPReader {
 		return record;
 	}
 	
-	public Map<Store, SAPMonthRecord> read() {
+	public Map<Integer, SAPMonthRecord> read() {
 		Sheet sheet = this.wb.getSheetAt(0);
 		int startRowNum = 11;
 		int lastRowNum = sheet.getLastRowNum();
-		Map<Store, SAPMonthRecord> result = new HashMap<>();
+		Map<Integer, SAPMonthRecord> result = new HashMap<>();
 		
 		SAPMonthRecord smRecord = new SAPMonthRecord();
 		List<SAPRecord> storeRecords = new ArrayList<>();
@@ -96,10 +107,15 @@ public class SAPReader {
 			
 			// find this is the row of store
 			if (costElemCell.getCellStyle().getFillForegroundColor() == IndexedColors.YELLOW.index) {
-				Store store = new Store(costElemCell.getStringCellValue());
+				String storeVal = midString(costElemCell.getStringCellValue());
+				if (storeVal.startsWith("6")) {
+					continue;
+				}
+				int sCode = Integer.parseInt(storeVal.substring(0, 4));
+				smRecord.setYear(year);
 				smRecord.setMonth(month);
-				smRecord.setStore(store);
-				result.put(store, smRecord);
+				smRecord.setStoreCode(sCode);
+				result.put(sCode, smRecord);
 				
 				smRecord = new SAPMonthRecord();
 				storeRecords = new ArrayList<>();
