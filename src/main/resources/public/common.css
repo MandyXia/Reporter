@@ -1,0 +1,290 @@
+/* override bootstrap */
+.nav-tabs a {
+	text-decoration: none !important
+}
+
+.nav-tabs>li.active>a,.nav-tabs>li.active>a:focus,.nav-tabs>li.active>a:hover
+	{
+	border-left: 0;
+}
+
+.nav-tabs {
+	margin-top: 15px;
+}
+
+body {
+	background-color: #dfdfdf;
+	font-size:12px;
+}
+
+#page {
+	margin: 8px;
+}
+
+#header {
+	background: #6c940b;
+	width: 100%;
+	height: 72px;
+	position: relative;
+	top: 0px;
+	left: 0px;
+}
+
+#site-name {
+	margin: 0;
+	display: inline;
+	font-size: 1.5em;
+}
+
+#site-name a, #site-name a:hover {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	position: absolute;
+	top: 25px;
+	left: 16px;
+	text-decoration: none;
+	color: #fff;
+}
+
+#content {
+	display: block;
+	margin: 10px 16px 0 10px;
+	padding-bottom: 20px;
+	min-height:400px;
+}
+
+#container {
+	background: #fff;
+	margin: 0;
+	padding-bottom: 20px;
+	overflow: hidden;
+}
+
+a:link,a:visited {
+	color: #333;
+	text-decoration: underline;
+}
+
+a:hover,a:focus {
+	color: #60aa00;
+	text-decoration: underline;
+}
+
+a:active,a.active {
+	color: #60aa00;
+}
+
+table {
+	border-spacing: 0;
+	margin: 0;
+	border-collapse: collapse;
+}
+
+th {
+	height: 19px;
+	text-align: left;
+	font-weight: bold;
+	margin: 0;
+	padding: 3px 6px 0 6px;
+	line-height: 19px;
+}
+
+.bordered-table th {
+	background-image: url(../images/table-header-background.png);
+	background-repeat: repeat-x;
+}
+
+td {
+	margin: 0;
+	padding: 4px 6px;
+	vertical-align: top;
+}
+
+th.table-meta-data {
+	text-align: right;
+	vertical-center;
+}
+
+.name-sublevel1-odd,.name-sublevel1-even {
+	padding-left: 20px;
+	font-weight: bold;
+}
+
+table {
+	color: #666;
+}
+
+.bordered-table {
+	border: 1px solid #b8c885;
+}
+
+th {
+	color: #333;
+}
+
+.bordered-table th {
+	border-bottom: 1px solid #b8c885;
+}
+
+.sublevel1-odd {
+	background: #f8faf0;
+}
+
+.sublevel1-even {
+	background: #fff;
+}
+
+.name-sublevel1-odd {
+	background: #f8faf0;
+}
+
+.name-sublevel1-even {
+	background: #fff;
+}
+
+h1{
+	color: #007c00;
+	text-align:center;
+	margin-bottom:30px;
+	font-size:1.8em;
+	font-weight:bold;
+}
+
+.dropdown-menu a {
+	text-decoration:none;
+}
+
+.form-control{
+	margin-left:10px;
+	width:auto;
+	display:inline-block;
+}
+
+#container .row{
+	margin-bottom:15px;
+}
+
+.dropdown{
+	display:inline-block;
+	margin-left:10px;
+}
+
+#clear{
+	margin-left:10px;
+}
+
+.glyphicon.spinning {
+    animation: spin 1s infinite linear;
+    -webkit-animation: spin2 1s infinite linear;
+}
+ 
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+}
+ 
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+}
+ 
+.glyphicon-left {
+    margin-right: 7px;
+}
+
+#actionModal label{
+	margin-bottom:20px;
+	width:160px;
+}
+
+#actionModal label[for=jobDataMap]{
+	margin-bottom:5px;
+	width:auto;
+}
+
+#jobDataMap{
+	margin-left:0;
+	width:100%;
+	display:block;
+	height:150px;
+}
+
+
+#actionModal select{
+	margin-left:7px;
+}
+
+.help-block{
+	display:inline-block;
+	margin-left:10px;
+}
+
+label.required:after {content: " *"; color: red;}
+
+.bootstrap-table .table{
+	border-bottom:0;
+}
+
+.glyphicon {
+	margin-left:5px;
+	font-size:0.8em;
+	cursor: pointer;
+}
+
+.subtable{
+	background-color: #ddd;
+	padding: 3px!important;
+}
+
+.subtable table{
+	margin-bottom: 0;
+}
+
+.red{
+	color: red;
+}
+
+.normal{
+	font-weight:bold;
+}
+
+#logModal .modal-body{
+	min-height:400px;
+	max-height:650px;
+	overflow:auto;
+	margin-bottom:20px;
+}
+
+.popuplink{
+	cursor: pointer;
+}
+
+.loading {
+    background: transparent url(http://p.ebaystatic.com/aw/pics/globalAssets/imgLoading_45x45.gif) no-repeat scroll center;
+    height: 400px;
+}
+
+td img{
+	margin-right:3px;
+	vertical-align:top;
+}
+
+.userspan{
+	float: right;
+    margin: 25px;
+    color: #fff;
+}
+.userspan a{
+	color: #fff;
+}
+.userspan #user{
+	font-weight:bold;
+	margin-right:5px;
+}
+.control-group{
+	margin-top:15px;
+}
+
+.control-label{
+	width:80px;
+}

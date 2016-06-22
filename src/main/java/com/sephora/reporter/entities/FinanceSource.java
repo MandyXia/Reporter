@@ -14,16 +14,22 @@ import javax.persistence.Table;
 public class FinanceSource extends BaseEntity {
 	@Column(name = "SourceDate")
 	private Date sourceDate;
-	
-	@Column(name = "SAPFile")
-	private String sapFile;
-	
-	@Column(name = "SalesFile")
-	private String salesFile;
-	
+
+	@Column(name = "SAPFileName")
+	private String sapFileName;
+
+	@Column(name = "SAPFilePath")
+	private String sapFilePath;
+
+	@Column(name = "SalesFileName")
+	private String salesFileName;
+
+	@Column(name = "SalesFilePath")
+	private String salesFilePath;
+
 	@Column(name = "SalesTotal")
 	private double salesTotal;
-	
+
 	@OneToMany(fetch = FetchType.EAGER)
 	private List<FinanceReport> targetReports;
 
@@ -35,20 +41,36 @@ public class FinanceSource extends BaseEntity {
 		this.sourceDate = sourceDate;
 	}
 
-	public String getSapFile() {
-		return sapFile;
+	public String getSapFileName() {
+		return sapFileName;
 	}
 
-	public void setSapFile(String sapFile) {
-		this.sapFile = sapFile;
+	public void setSapFileName(String sapFileName) {
+		this.sapFileName = sapFileName;
 	}
 
-	public String getSalesFile() {
-		return salesFile;
+	public String getSapFilePath() {
+		return sapFilePath;
 	}
 
-	public void setSalesFile(String salesFile) {
-		this.salesFile = salesFile;
+	public void setSapFilePath(String sapFilePath) {
+		this.sapFilePath = sapFilePath;
+	}
+
+	public String getSalesFileName() {
+		return salesFileName;
+	}
+
+	public void setSalesFileName(String salesFileName) {
+		this.salesFileName = salesFileName;
+	}
+
+	public String getSalesFilePath() {
+		return salesFilePath;
+	}
+
+	public void setSalesFilePath(String salesFilePath) {
+		this.salesFilePath = salesFilePath;
 	}
 
 	public double getSalesTotal() {

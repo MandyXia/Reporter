@@ -56,7 +56,8 @@ public class FinanceResources {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
 		String folder = sdf.format(date);
 
-		String fileFullName = PathUtils.reformatPath(PathUtils.getRoot() + "/sources/" + folder + "/sapfile-" + disposition.getFileName());
+		String fileName = "sapfile-" + disposition.getFileName();
+		String fileFullName = PathUtils.reformatPath(PathUtils.getRoot() + "/sources/" + folder + "/" + fileName);
 		try (FileOutputStream fo = new FileOutputStream(new File(fileFullName))) {
 			byte[] buffer = new byte[8192];
 			int len = -1;
@@ -74,7 +75,8 @@ public class FinanceResources {
 			source = new FinanceSource();
 			source.setSourceDate(lookDate);
 		}
-		source.setSapFile(fileFullName);
+		source.setSapFileName(fileName);
+		source.setSapFilePath(fileFullName);
 		repo.saveAndFlush(source);
 
 		return Response.status(201).entity("SAP File:" + fileFullName + " successfully uploaded.").build();
@@ -92,7 +94,8 @@ public class FinanceResources {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
 		String folder = sdf.format(date);
 
-		String fileFullName = PathUtils.reformatPath(PathUtils.getRoot() + "/sources/" + folder + "/salesfile-" + disposition.getFileName());
+		String fileName = "salesfile-" + disposition.getFileName();
+		String fileFullName = PathUtils.reformatPath(PathUtils.getRoot() + "/sources/" + folder + "/" + fileName);
 		try (FileOutputStream fo = new FileOutputStream(new File(fileFullName))) {
 			byte[] buffer = new byte[8192];
 			int len = -1;
@@ -110,7 +113,8 @@ public class FinanceResources {
 			source = new FinanceSource();
 			source.setSourceDate(lookDate);
 		}
-		source.setSalesFile(fileFullName);
+		source.setSalesFileName(fileName);
+		source.setSalesFilePath(fileFullName);
 		repo.saveAndFlush(source);
 
 		return Response.status(201).entity("Sales File:" + fileFullName + " successfully uploaded.").build();
