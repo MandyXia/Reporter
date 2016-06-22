@@ -26,12 +26,11 @@ import com.sephora.reporter.entities.FinanceSource;
 import com.sephora.reporter.repositories.FinanceSourceRepository;
 import com.sephora.reporter.utils.PathUtils;
 
-@Path("/finances")
+@Path("/finance")
 public class FinanceResources {
-	
 	@Autowired
 	private FinanceSourceRepository repo;
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<FinanceSource> getMonthRecords() {
@@ -44,15 +43,20 @@ public class FinanceResources {
 		});
 		return result;
 	}
-	
+
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Path("/sap")
-	public Response uploadSapFile(@FormDataParam("sapfile") InputStream sapfile, @FormDataParam("sapfile") FormDataContentDisposition disposition, @FormDataParam("date") Date date) {
+	public Response uploadSapFile(@FormDataParam("sapfile") InputStream sapfile,
+			@FormDataParam("sapfile") FormDataContentDisposition disposition, @FormDataParam("date") Date date) {
+		if (date == null) {
+			date = new Date();
+		}
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
 		String folder = sdf.format(date);
-		
-		String fileFullName = PathUtils.getRoot() + "/sources/" + folder + "/sapfile-" + disposition.getFileName();
+
+		String fileFullName = PathUtils.reformatPath(PathUtils.getRoot() + "/sources/" + folder + "/sapfile-" + disposition.getFileName());
 		try (FileOutputStream fo = new FileOutputStream(new File(fileFullName))) {
 			byte[] buffer = new byte[8192];
 			int len = -1;
@@ -62,16 +66,53 @@ public class FinanceResources {
 			fo.flush();
 		} catch (IOException e) {
 		}
+
+		SimpleDateFormat sqlsdf = new SimpleDateFormat("yyyy-MM-dd");
+		java.sql.Date lookDate = java.sql.Date.valueOf(sqlsdf.format(date));
+		FinanceSource source = repo.findBySourceDate(lookDate);
+		if (source == null) {
+			source = new FinanceSource();
+			source.setSourceDate(lookDate);
+		}
+		source.setSapFile(fileFullName);
+		repo.saveAndFlush(source);
+
+		return Response.status(201).entity("SAP File:" + fileFullName + " successfully uploaded.").build();
+	}
+
+	@POST
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Path("/sales")
+	public Response uploadSalesFile(@FormDataParam("salesfile") InputStream salesfile,
+			@FormDataParam("salesfile") FormDataContentDisposition disposition, @FormDataParam("date") Date date) {
+		if (date == null) {
+			date = new Date();
+		}
 		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+		String folder = sdf.format(date);
+
+		String fileFullName = PathUtils.reformatPath(PathUtils.getRoot() + "/sources/" + folder + "/salesfile-" + disposition.getFileName());
+		try (FileOutputStream fo = new FileOutputStream(new File(fileFullName))) {
+			byte[] buffer = new byte[8192];
+			int len = -1;
+			while ((len = salesfile.read(buffer, 0, 8192)) != -1) {
+				fo.write(buffer, 0, len);
+			}
+			fo.flush();
+		} catch (IOException e) {
+		}
+
 		SimpleDateFormat sqlsdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		java.sql.Date lookDate = java.sql.Date.valueOf(sqlsdf.format(date));
 		FinanceSource source = repo.findBySourceDate(lookDate);
 		if (source == null) {
 			source = new FinanceSource();
+			source.setSourceDate(lookDate);
 		}
-		source.setSapFile(fileFullName);
+		source.setSalesFile(fileFullName);
 		repo.saveAndFlush(source);
-		
-		return Response.status(201).entity("SAP File:" + fileFullName + " successfully uploaded.").build();
+
+		return Response.status(201).entity("Sales File:" + fileFullName + " successfully uploaded.").build();
 	}
 }

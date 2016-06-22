@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -23,7 +24,7 @@ public class FinanceSource extends BaseEntity {
 	@Column(name = "SalesTotal")
 	private double salesTotal;
 	
-	@OneToMany
+	@OneToMany(fetch = FetchType.EAGER)
 	private List<FinanceReport> targetReports;
 
 	public Date getSourceDate() {
