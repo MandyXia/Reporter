@@ -16,27 +16,26 @@ public class ReportService {
 	public static final int MODE_STORE = 2;
 	
 	private Workbook wb;
-	private List<SAPReader> saprs;
-	private List<SalesReader> salesrs;
+	private String[] sapFiles;
+	private String[] salesFiles;
 	
-	public ReportService(String[] sapFile, String[] salesFile) {
-		saprs = new ArrayList<>();
-		for (String sa : sapFile) {
-			SAPReader sr = new SAPReader(sa);
-			saprs.add(sr);
-		}
-		
-		salesrs = new ArrayList<>();
-		for (String sl : salesFile) {
-			SalesReader ssr = new SalesReader(sl);
-			salesrs.add(ssr);
-		}
+	public ReportService(String[] sapFiles, String[] salesFiles, Date[] months) {
+		this.sapFiles = sapFiles;
+		this.salesFiles = salesFiles;
 	}
 	
 	public void generate(List<Store> stores, List<Date> months, int mode) {
 		if (mode == MODE_TIME) {
 			//suppose only one store for now
 			Store onestore = stores.get(0);
+			
+			saprs = new ArrayList<>();
+			salesrs = new ArrayList<>();
+			int len = months.length;
+			for (int i = 0;i < len;i ++) {
+				saprs.add(new SAPReader(sapFile[i], months[i]));
+				salesrs.add(new SalesReader(salesFile[i], months[i]));
+			}
 		}
 			
 		Map<Store, List<SAPRecord>> saps = sapreader.read();
