@@ -23,8 +23,23 @@ public class FinanceSource extends BaseEntity {
 	@Column(name = "SalesFilePath")
 	private String salesFilePath;
 
-	@Column(name = "SalesTotal")
-	private double salesTotal;
+	@Column(name = "VIPTOTAL")
+	private double viptotal;
+	
+	@Column(name = "ANIMTOTAL")
+	private double animtotal;
+	
+	@Column(name = "STOCKTOTAL")
+	private double stocktotal;
+	
+	@Column(name = "DISPLAYTOTAL")
+	private double displaytotal;
+	
+	@Column(name = "INSTOTAL")
+	private double instotal;
+	
+	@Column(name = "TAXTOTAL")
+	private double taxtotal;
 
 	@OneToMany(fetch = FetchType.EAGER)
 	private List<FinanceReport> targetReports;
@@ -61,12 +76,52 @@ public class FinanceSource extends BaseEntity {
 		this.salesFilePath = salesFilePath;
 	}
 
-	public double getSalesTotal() {
-		return salesTotal;
+	public double getViptotal() {
+		return viptotal;
 	}
 
-	public void setSalesTotal(double salesTotal) {
-		this.salesTotal = salesTotal;
+	public void setViptotal(double viptotal) {
+		this.viptotal = viptotal;
+	}
+
+	public double getAnimtotal() {
+		return animtotal;
+	}
+
+	public void setAnimtotal(double animtotal) {
+		this.animtotal = animtotal;
+	}
+
+	public double getStocktotal() {
+		return stocktotal;
+	}
+
+	public void setStocktotal(double stocktotal) {
+		this.stocktotal = stocktotal;
+	}
+
+	public double getDisplaytotal() {
+		return displaytotal;
+	}
+
+	public void setDisplaytotal(double displaytotal) {
+		this.displaytotal = displaytotal;
+	}
+
+	public double getInstotal() {
+		return instotal;
+	}
+
+	public void setInstotal(double instotal) {
+		this.instotal = instotal;
+	}
+
+	public double getTaxtotal() {
+		return taxtotal;
+	}
+
+	public void setTaxtotal(double taxtotal) {
+		this.taxtotal = taxtotal;
 	}
 
 	public List<FinanceReport> getTargetReports() {

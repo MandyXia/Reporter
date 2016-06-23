@@ -3,7 +3,6 @@ package com.sephora.reporter.resources;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,9 +20,12 @@ public class ReportResources {
 	private FinanceSourceRepository repo;
 	
 	@GET
-	@Path("/month/{month}")
-	public String runMonthReport(@PathParam("month") int month, @QueryParam("store") int store) {
-		int year = 2016;
+	@Path("/time/{year}/{month}/{store}")
+	public String runMonthReport(@PathParam("year") int year, @PathParam("month") int month, @PathParam("store") int store) {
+		if (year == 0 || month == 0 || store == 0) {
+			return "year, month, store code are mandatory";
+		}
+		
 		FinanceSource src = repo.findBySourceYearAndSourceMonth(year, month);
 		if (src != null && src.getSapFilePath() != null && src.getSalesFilePath() != null) {
 			String sapf = src.getSapFilePath();

@@ -8,6 +8,10 @@ public class SalesRecord {
 	private double vatytd;
 	private double cogsmtd;
 	private double cogsytd;
+	private double vatmp;
+	private double vatyp;
+	private double cogsmp;
+	private double cogsyp;
 
 	public int getStoreCode() {
 		return storeCode;
@@ -63,5 +67,37 @@ public class SalesRecord {
 
 	public void setCogsytd(double cogsytd) {
 		this.cogsytd = cogsytd;
+	}
+
+	public double getVatmp() {
+		return vatmp;
+	}
+
+	public void setVatmp(double vatmp) {
+		this.vatmp = vatmp;
+	}
+
+	public double getVatyp() {
+		return vatyp;
+	}
+
+	public void setVatyp(double vatyp) {
+		this.vatyp = vatyp;
+	}
+
+	public double getCogsmp() {
+		return cogsmp;
+	}
+
+	public void setCogsmp(double cogsmp) {
+		this.cogsmp = cogsmp;
+	}
+
+	public double getCogsyp() {
+		return cogsyp;
+	}
+
+	public void setCogsyp(double cogsyp) {
+		this.cogsyp = cogsyp;
 	}
 }

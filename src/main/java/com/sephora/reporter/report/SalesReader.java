@@ -36,6 +36,7 @@ public class SalesReader {
 		Sheet sheet = this.wb.getSheetAt(0);
 		int lastRow = sheet.getLastRowNum();
 		Map<Integer, SalesRecord> result = new HashMap<>();
+		double vatmall = 0d, vatyall = 0d, cogsmall = 0d, cogsyall = 0d;
 		for (int r = START_ROW;r < lastRow;r ++) {
 			Row row = sheet.getRow(r);
 			Cell nameCell = row.getCell(0);
@@ -65,41 +66,45 @@ public class SalesReader {
 			record.setCogsmtd(cogsCell.getNumericCellValue());
 			record.setCogsytd(cogsyCell.getNumericCellValue());
 			result.put(storeCode, record);
+			
+			vatmall += vatCell.getNumericCellValue();
+			vatyall += vatyCell.getNumericCellValue();
+			cogsmall += cogsCell.getNumericCellValue();
+			cogsyall += cogsyCell.getNumericCellValue();
+		}
+		
+		for (Map.Entry<Integer, SalesRecord> entry : result.entrySet()) {
+			SalesRecord sre = entry.getValue();
+			if (vatmall != 0) {
+				double vat = sre.getVatmtd();
+				sre.setVatmp(vat / vatmall);
+			}
+			
+			if (vatyall != 0) {
+				double vaty = sre.getVatytd();
+				sre.setVatyp(vaty / vatyall);
+			}
+			
+			if (cogsmall != 0) {
+				double cogs = sre.getCogsmtd();
+				sre.setCogsmp(cogs / cogsmall);
+			}
+			
+			if (cogsyall != 0) {
+				double cogsy = sre.getCogsytd();
+				sre.setCogsyp(cogsy / cogsyall);
+			}
 		}
 		return result;
 	}
 	
 	public SalesRecord read(int storeCode) {
-		Sheet sheet = this.wb.getSheetAt(0);
-		int lastRow = sheet.getLastRowNum();
-		SalesRecord record = null;
-		for (int r = START_ROW;r < lastRow;r ++) {
-			Row row = sheet.getRow(r);
-			Cell nameCell = row.getCell(0);
-			if (nameCell == null || StringUtils.isEmpty(nameCell.getStringCellValue())) {
-				break;
-			}
-			
-			String cellVal = nameCell.getStringCellValue();
-			if (!cellVal.startsWith("6")) {
-				continue;
-			}
-			
-			String code = cellVal.substring(0, 4);
-			int sCode = Integer.parseInt(code);
-			
-			if (sCode == storeCode) {
-				record = new SalesRecord();
-				record.setYear(year);
-				record.setMonth(month);
-				record.setStoreCode(sCode);
-				record.setVatmtd(row.getCell(1).getNumericCellValue());
-				record.setVatytd(row.getCell(2).getNumericCellValue());
-				record.setCogsmtd(row.getCell(3).getNumericCellValue());
-				record.setCogsytd(row.getCell(4).getNumericCellValue());
-				break;
+		Map<Integer, SalesRecord> result = readAll();
+		for (Map.Entry<Integer, SalesRecord> entry : result.entrySet()) {
+			if (entry.getKey() != null && entry.getKey() == storeCode) {
+				return entry.getValue();
 			}
 		}
-		return record;
+		return null;
 	}
 }
