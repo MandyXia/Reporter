@@ -13,6 +13,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -121,5 +122,66 @@ public class FinanceResources {
 		repo.saveAndFlush(source);
 
 		return Response.status(201).entity("Sales File:" + fileFullName + " successfully uploaded.").build();
+	}
+	
+	@Path("/supplier")
+	@POST
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	public Response uploadSupplierFile(@FormDataParam("supplierfile") InputStream supplierfile,
+			@FormDataParam("supplierfile") FormDataContentDisposition disposition, @FormDataParam("year") int year, @FormDataParam("month") int month) {
+		if (year == 0 || month == 0) {
+			Calendar calendar = Calendar.getInstance();
+			year = calendar.get(Calendar.YEAR);
+			month = calendar.get(Calendar.MONTH) + 1;
+		}
+		
+		String fileName = "supplier-" + year + "-" + month + ".xlsx";
+		String folder = PathUtils.getRoot() + "/sources/" + year + "/";
+		new File(folder).mkdirs();
+		
+		String fileFullName = PathUtils.reformatPath(folder + fileName);
+		try (FileOutputStream fo = new FileOutputStream(fileFullName)) {
+			byte[] buffer = new byte[8192];
+			int len = -1;
+			while ((len = supplierfile.read(buffer, 0, 8192)) != -1) {
+				fo.write(buffer, 0, len);
+			}
+			fo.flush();
+		} catch (IOException e) {
+		}
+
+		FinanceSource source = repo.findBySourceYearAndSourceMonth(year, month);
+		if (source == null) {
+			source = new FinanceSource();
+			source.setSourceYear(year);
+			source.setSourceMonth(month);
+		}
+		source.setSupplierPath(fileFullName);
+		repo.saveAndFlush(source);
+
+		return Response.status(201).entity("Supplier File:" + fileFullName + " successfully uploaded.").build();
+	}
+	
+	@Path("/salestotal/year/{year}/month/{month}/type/{type}")
+	@POST
+	public Response setFinanceTotal(@PathParam("year") int year, @PathParam("month") int month, @PathParam("type") String type, @FormDataParam("value") double value) {
+		FinanceSource source = repo.findBySourceYearAndSourceMonth(year, month);
+		
+		if ("vip".equalsIgnoreCase(type)) {
+			source.setViptotal(value);
+		} else if ("anim".equalsIgnoreCase(type)) {
+			source.setAnimtotal(value);
+		} else if ("stock".equalsIgnoreCase(type)) {
+			source.setStocktotal(value);
+		} else if ("display".equalsIgnoreCase(type)) {
+			source.setDisplaytotal(value);
+		} else if ("ins".equalsIgnoreCase(type)) {
+			source.setInstotal(value);
+		} else if ("tax".equalsIgnoreCase(type)) {
+			source.setTaxtotal(value);
+		}
+		repo.saveAndFlush(source);
+		
+		return Response.status(200).entity("total " + type + " set to " + value).build();
 	}
 }

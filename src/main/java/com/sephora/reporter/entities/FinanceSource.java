@@ -22,6 +22,9 @@ public class FinanceSource extends BaseEntity {
 
 	@Column(name = "SalesFilePath")
 	private String salesFilePath;
+	
+	@Column(name = "SupplierPath")
+	private String supplierPath;
 
 	@Column(name = "VIPTOTAL")
 	private double viptotal;
@@ -62,6 +65,14 @@ public class FinanceSource extends BaseEntity {
 
 	public String getSapFilePath() {
 		return sapFilePath;
+	}
+
+	public String getSupplierPath() {
+		return supplierPath;
+	}
+
+	public void setSupplierPath(String supplierPath) {
+		this.supplierPath = supplierPath;
 	}
 
 	public void setSapFilePath(String sapFilePath) {

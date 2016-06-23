@@ -36,12 +36,18 @@ public class SalesReader {
 		Sheet sheet = this.wb.getSheetAt(0);
 		int lastRow = sheet.getLastRowNum();
 		Map<Integer, SalesRecord> result = new HashMap<>();
-		double vatmall = 0d, vatyall = 0d, cogsmall = 0d, cogsyall = 0d;
+		boolean startRead = false;
 		for (int r = START_ROW;r < lastRow;r ++) {
 			Row row = sheet.getRow(r);
-			Cell nameCell = row.getCell(0);
-			if (nameCell == null || StringUtils.isEmpty(nameCell.getStringCellValue())) {
-				break;
+			Cell nameCell = row.getCell(1);
+			if (nameCell == null || nameCell.getCellType() != Cell.CELL_TYPE_STRING || StringUtils.isEmpty(nameCell.getStringCellValue())) {
+				if (startRead) {
+					System.out.println("Already start, break");
+					break;
+				} else {
+					System.out.println("Continue, not started");
+					continue;
+				}
 			}
 			
 			String cellVal = nameCell.getStringCellValue();
@@ -49,14 +55,16 @@ public class SalesReader {
 				continue;
 			}
 			
+			startRead = true;
+			
 			String code = cellVal.substring(0, 4);
 			int storeCode = Integer.parseInt(code);
 			
 			SalesRecord record = new SalesRecord();
-			Cell vatCell = row.getCell(1);
-			Cell vatyCell = row.getCell(2);
-			Cell cogsCell = row.getCell(3);
-			Cell cogsyCell = row.getCell(4);
+			Cell vatCell = row.getCell(2);
+			Cell vatyCell = row.getCell(3);
+			Cell cogsCell = row.getCell(4);
+			Cell cogsyCell = row.getCell(5);
 			
 			record.setStoreCode(storeCode);
 			record.setYear(year);
@@ -66,35 +74,8 @@ public class SalesReader {
 			record.setCogsmtd(cogsCell.getNumericCellValue());
 			record.setCogsytd(cogsyCell.getNumericCellValue());
 			result.put(storeCode, record);
-			
-			vatmall += vatCell.getNumericCellValue();
-			vatyall += vatyCell.getNumericCellValue();
-			cogsmall += cogsCell.getNumericCellValue();
-			cogsyall += cogsyCell.getNumericCellValue();
 		}
 		
-		for (Map.Entry<Integer, SalesRecord> entry : result.entrySet()) {
-			SalesRecord sre = entry.getValue();
-			if (vatmall != 0) {
-				double vat = sre.getVatmtd();
-				sre.setVatmp(vat / vatmall);
-			}
-			
-			if (vatyall != 0) {
-				double vaty = sre.getVatytd();
-				sre.setVatyp(vaty / vatyall);
-			}
-			
-			if (cogsmall != 0) {
-				double cogs = sre.getCogsmtd();
-				sre.setCogsmp(cogs / cogsmall);
-			}
-			
-			if (cogsyall != 0) {
-				double cogsy = sre.getCogsytd();
-				sre.setCogsyp(cogsy / cogsyall);
-			}
-		}
 		return result;
 	}
 	

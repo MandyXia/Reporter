@@ -11,12 +11,12 @@ public class Cords {
 	public static Cord OTHER_COGS = new Cord(6, "Other COGS", Cord.FROM_FORMULA, "1");
 	public static Cord TOTAL_COGS = new Cord(7, "Total COGS", Cord.FROM_SAP, "COST OF GOODS SALES");
 	public static Cord FRONT_MARGIN = new Cord(8, "Front Margin", Cord.FROM_FORMULA, "2");
-	public static Cord SUPPLIES_DISCOUNTS = new Cord(9, "Suppliers discounts", Cord.FROM_OTHER, "");
+	public static Cord SUPPLIES_DISCOUNTS = new Cord(9, "Suppliers discounts", Cord.FROM_SUP, "");
 	public static Cord ANIMATION_REVENUES = new Cord(10, "Animation revenues", Cord.FROM_ALLOCATE, "Animation revenues");
 	public static Cord GROSS_MARGIN = new Cord(11, "Gross margin", Cord.FROM_FORMULA, "3");
 	public static Cord STOCK_DEPRECIATION = new Cord(12, "Stock depreciation", Cord.FROM_ALLOCATE, "Stock depreciation");
 	public static Cord SHRINKAGE = new Cord(13, "Shrinkage", Cord.FROM_SAP, "SHRINKAGE");
-	public static Cord TEST = new Cord(14, "Test", Cord.FROM_SAP, "TEST");
+	public static Cord TEST = new Cord(14, "Test", Cord.FROM_SAP, "TESTERS");
 	public static Cord GROSS_PROFIT = new Cord(15, "Gross profit", Cord.FROM_FORMULA, "4");
 	public static Cord LANDLORD_CHARGES = new Cord(16, "Landlord charges", Cord.FROM_SAP, "LANDLORD CHARGES");
 	public static Cord CONSTRUCTION_DEPRECIATION = new Cord(17, "Construction depreciation", Cord.FROM_SAP,

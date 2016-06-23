@@ -5,7 +5,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -65,9 +68,12 @@ public class ReportService {
 
 			SAPReader sr = new SAPReader(fss[i].getSapFilePath(), fss[i].getSourceYear(), fss[i].getSourceMonth());
 			SalesReader sl = new SalesReader(fss[i].getSalesFilePath(), fss[i].getSourceYear(), fss[i].getSourceMonth());
+			SupplierReader sp = new SupplierReader(fss[i].getSupplierPath());
 
 			SAPMonthRecord srrep = sr.read(store);
 			SalesRecord slrep = sl.read(store);
+			Map<Integer, Double> suptotalMap = sp.readAll();
+			double sdcount = suptotalMap.get(store);
 
 			for (Cord cord : Cords.ALL) {
 				int rowOffset = cord.getRowOffset();
@@ -82,12 +88,27 @@ public class ReportService {
 				switch (cord.getFrom()) {
 				case Cord.FROM_SAP:
 					String sapName = cord.getRef();
+					Set<String> sapNameSet = new HashSet<>();
+					if (sapName.contains("/")) {
+						String[] allnames = sapName.split("\\/");
+						for (String an : allnames) {
+							sapNameSet.add(an);
+						}
+					} else {
+						sapNameSet.add(sapName);
+					}
+					
+					double midVal = 0d;
 					for (SAPRecord srrec : srrep.getRecords()) {
-						if (srrec.getCostElem().equalsIgnoreCase(sapName)) {
-							rowVal = srrec.getMtd();
-							break;
+						if (sapNameSet.contains(srrec.getCostElem())) {
+							if (isMonth) {
+								midVal += srrec.getMtd();
+							} else {
+								midVal += srrec.getYtd();
+							}
 						}
 					}
+					rowVal = midVal;
 					System.out.println("Row " + (rowOffset + START_ROW) + " From SAP of [" + sapName + "] with value [" + rowVal + "]");
 					break;
 				case Cord.FROM_SALES:
@@ -110,8 +131,15 @@ public class ReportService {
 				case Cord.FROM_ALLOCATE:
 					String alloc = cord.getRef();
 					double total = Allocs.getAllocByName(alloc, fss[i]);
+					if (isMonth) {
+						System.out.println("P=" + srrep.getNetSalesMp());
+						System.out.println("T=" + total);
+						rowVal = srrep.getNetSalesMp() * total;
+					} else {
+						rowVal = srrep.getNetSalesYp() * total;
+					}
 					// TODO: add alloc
-					System.out.println("Row " + (rowOffset + START_ROW) + " Alloc 0");
+					System.out.println("Row " + (rowOffset + START_ROW) + " Alloc " + rowVal);
 					break;
 				case Cord.FROM_FORMULA:
 					int formula = Integer.parseInt(cord.getRef());
@@ -121,6 +149,10 @@ public class ReportService {
 						targetcell.setCellFormula(fStr);
 						System.out.println("Row " + (rowOffset + START_ROW) + " Formula [" + fStr + "]");
 					}
+					break;
+				case Cord.FROM_SUP:
+					rowVal = sdcount;
+					System.out.println("Row " + (rowOffset + START_ROW) + " Supplier [" + rowVal + "]");
 					break;
 				case Cord.FROM_OTHER:
 					System.out.println("Row " + (rowOffset + START_ROW) + " Other 0");

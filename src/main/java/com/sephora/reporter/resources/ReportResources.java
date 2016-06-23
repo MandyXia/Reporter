@@ -1,5 +1,6 @@
 package com.sephora.reporter.resources;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -30,7 +31,7 @@ public class ReportResources {
 	@Path("/time/year/{year}/month/{month}")
 	public List<String> runYearReport(@PathParam("year") int year, @PathParam("month") int month) {
 		if (year == 0 || month == 0) {
-			return "year, month are mandatory";
+			return Arrays.asList("year, month are mandatory");
 		}
 		List<StoreRecord> stores = storeRepo.findByYearAndMonth(year, month);
 		int[] storeCodes = new int[stores.size()];
@@ -43,7 +44,7 @@ public class ReportResources {
 		if (src != null && src.getSapFilePath() != null && src.getSalesFilePath() != null) {
 			return svc.runTimeReport(new FinanceSource[]{src}, storeCodes, true);
 		} else {
-			return "No Source Available";
+			return Arrays.asList("No Source Available");
 		}
 	}
 	

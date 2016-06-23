@@ -6,6 +6,8 @@ public class SAPMonthRecord {
 	private int storeCode;
 	private int year;
 	private int month;
+	private double netSalesMp;
+	private double netSalesYp;
 	List<SAPRecord> records;
 
 	public int getStoreCode() {
@@ -30,6 +32,22 @@ public class SAPMonthRecord {
 
 	public void setMonth(int month) {
 		this.month = month;
+	}
+
+	public double getNetSalesMp() {
+		return netSalesMp;
+	}
+
+	public void setNetSalesMp(double netSalesMp) {
+		this.netSalesMp = netSalesMp;
+	}
+
+	public double getNetSalesYp() {
+		return netSalesYp;
+	}
+
+	public void setNetSalesYp(double netSalesYp) {
+		this.netSalesYp = netSalesYp;
 	}
 
 	public List<SAPRecord> getRecords() {

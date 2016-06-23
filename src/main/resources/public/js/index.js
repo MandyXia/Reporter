@@ -14,10 +14,9 @@ function initTable(reload) {
 		success : function(result) {
 			$.each(result, function(idx, records) {
 				var row = {
-					'sourceDate' : records.sourceDate,
-					'sapFile' : records.sapFile,
-					'salesFile' : records.salesFile,
-					'salesTotal' : records.salesTotal,
+					'sourceDate' : records.sourceYear + "-" + records.sourceMonth,
+					'sapFile' : records.sapFilePath,
+					'salesFile' : records.salesFilePath,
 					'targetReports' : records.targetReports,
 					'actions' : "<span>actions</span>"
 				};

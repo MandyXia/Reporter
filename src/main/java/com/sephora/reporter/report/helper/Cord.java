@@ -5,7 +5,8 @@ public class Cord {
 	public static final int FROM_SALES = 2;
 	public static final int FROM_FORMULA = 3;
 	public static final int FROM_ALLOCATE = 4;
-	public static final int FROM_OTHER = 5;
+	public static final int FROM_SUP = 5;
+	public static final int FROM_OTHER = 6;
 	
 	private int rowOffset;
 	private String name;
