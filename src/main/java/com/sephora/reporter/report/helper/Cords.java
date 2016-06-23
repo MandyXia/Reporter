@@ -11,7 +11,7 @@ public class Cords {
 	public static Cord OTHER_COGS = new Cord(6, "Other COGS", Cord.FROM_FORMULA, "1");
 	public static Cord TOTAL_COGS = new Cord(7, "Total COGS", Cord.FROM_SAP, "COST OF GOODS SALES");
 	public static Cord FRONT_MARGIN = new Cord(8, "Front Margin", Cord.FROM_FORMULA, "2");
-	public static Cord SUPPLIES_DISCOUNTS = new Cord(9, "Suppliers discounts", 6, "");
+	public static Cord SUPPLIES_DISCOUNTS = new Cord(9, "Suppliers discounts", Cord.FROM_OTHER, "");
 	public static Cord ANIMATION_REVENUES = new Cord(10, "Animation revenues", Cord.FROM_ALLOCATE, "Animation revenues");
 	public static Cord GROSS_MARGIN = new Cord(11, "Gross margin", Cord.FROM_FORMULA, "3");
 	public static Cord STOCK_DEPRECIATION = new Cord(12, "Stock depreciation", Cord.FROM_ALLOCATE, "Stock depreciation");

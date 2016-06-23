@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -34,6 +36,14 @@ public class ReportService {
 	private static final int START_ROW = 6;
 	private static final int START_COL = 1;
 	private static final CellRangeAddress TEMPLATE_RANGE = new CellRangeAddress(0, 39, 0, 0);
+	
+	public List<String> runTimeReport(FinanceSource[] fss, int[] stores, boolean isMonth) {
+		List<String> result = new ArrayList<>();
+		for (int store : stores) {
+			result.add(runTimeReportByStore(fss, store, isMonth));
+		}
+		return result;
+	}
 
 	public String runTimeReportByStore(FinanceSource[] fss, int store, boolean isMonth) {
 		String foName = PathUtils.getRoot() + "/" + store + ".xlsx";
