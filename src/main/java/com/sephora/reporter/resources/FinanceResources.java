@@ -4,10 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -38,7 +37,11 @@ public class FinanceResources {
 		Collections.sort(result, new Comparator<FinanceSource>() {
 			@Override
 			public int compare(FinanceSource o1, FinanceSource o2) {
-				return o1.getSourceDate().compareTo(o2.getSourceDate());
+				if (o1.getSourceYear() != o2.getSourceYear()) {
+					return o1.getSourceYear() - o2.getSourceYear();
+				} else {
+					return o1.getSourceMonth() - o2.getSourceMonth();
+				}
 			}
 		});
 		return result;
@@ -48,17 +51,19 @@ public class FinanceResources {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Path("/sap")
 	public Response uploadSapFile(@FormDataParam("sapfile") InputStream sapfile,
-			@FormDataParam("sapfile") FormDataContentDisposition disposition, @FormDataParam("date") Date date) {
-		if (date == null) {
-			date = new Date();
+			@FormDataParam("sapfile") FormDataContentDisposition disposition, @FormDataParam("year") int year, @FormDataParam("month") int month) {
+		if (year == 0 || month == 0) {
+			Calendar calendar = Calendar.getInstance();
+			year = calendar.get(Calendar.YEAR);
+			month = calendar.get(Calendar.MONTH) + 1;
 		}
 		
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
-		String folder = sdf.format(date);
-
-		String fileName = "sapfile-" + disposition.getFileName();
-		String fileFullName = PathUtils.reformatPath(PathUtils.getRoot() + "/sources/" + folder + "/" + fileName);
-		try (FileOutputStream fo = new FileOutputStream(new File(fileFullName))) {
+		String fileName = "sap-" + year + "-" + month + ".xlsx";
+		String folder = PathUtils.getRoot() + "/sources/" + year + "/";
+		new File(folder).mkdirs();
+		
+		String fileFullName = PathUtils.reformatPath(folder + fileName);
+		try (FileOutputStream fo = new FileOutputStream(fileFullName)) {
 			byte[] buffer = new byte[8192];
 			int len = -1;
 			while ((len = sapfile.read(buffer, 0, 8192)) != -1) {
@@ -68,14 +73,12 @@ public class FinanceResources {
 		} catch (IOException e) {
 		}
 
-		SimpleDateFormat sqlsdf = new SimpleDateFormat("yyyy-MM-dd");
-		java.sql.Date lookDate = java.sql.Date.valueOf(sqlsdf.format(date));
-		FinanceSource source = repo.findBySourceDate(lookDate);
+		FinanceSource source = repo.findBySourceYearAndSourceMonth(year, month);
 		if (source == null) {
 			source = new FinanceSource();
-			source.setSourceDate(lookDate);
+			source.setSourceYear(year);
+			source.setSourceMonth(month);
 		}
-		source.setSapFileName(fileName);
 		source.setSapFilePath(fileFullName);
 		repo.saveAndFlush(source);
 
@@ -86,17 +89,19 @@ public class FinanceResources {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Path("/sales")
 	public Response uploadSalesFile(@FormDataParam("salesfile") InputStream salesfile,
-			@FormDataParam("salesfile") FormDataContentDisposition disposition, @FormDataParam("date") Date date) {
-		if (date == null) {
-			date = new Date();
+			@FormDataParam("salesfile") FormDataContentDisposition disposition, @FormDataParam("year") int year, @FormDataParam("month") int month) {
+		if (year == 0 || month == 0) {
+			Calendar calendar = Calendar.getInstance();
+			year = calendar.get(Calendar.YEAR);
+			month = calendar.get(Calendar.MONTH) + 1;
 		}
 		
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
-		String folder = sdf.format(date);
-
-		String fileName = "salesfile-" + disposition.getFileName();
-		String fileFullName = PathUtils.reformatPath(PathUtils.getRoot() + "/sources/" + folder + "/" + fileName);
-		try (FileOutputStream fo = new FileOutputStream(new File(fileFullName))) {
+		String fileName = "sales-" + year + "-" + month + ".xlsx";
+		String folder = PathUtils.getRoot() + "/sources/" + year + "/";
+		new File(folder).mkdirs();
+		
+		String fileFullName = PathUtils.reformatPath(folder + fileName);
+		try (FileOutputStream fo = new FileOutputStream(fileFullName)) {
 			byte[] buffer = new byte[8192];
 			int len = -1;
 			while ((len = salesfile.read(buffer, 0, 8192)) != -1) {
@@ -106,14 +111,12 @@ public class FinanceResources {
 		} catch (IOException e) {
 		}
 
-		SimpleDateFormat sqlsdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		java.sql.Date lookDate = java.sql.Date.valueOf(sqlsdf.format(date));
-		FinanceSource source = repo.findBySourceDate(lookDate);
+		FinanceSource source = repo.findBySourceYearAndSourceMonth(year, month);
 		if (source == null) {
 			source = new FinanceSource();
-			source.setSourceDate(lookDate);
+			source.setSourceYear(year);
+			source.setSourceMonth(month);
 		}
-		source.setSalesFileName(fileName);
 		source.setSalesFilePath(fileFullName);
 		repo.saveAndFlush(source);
 

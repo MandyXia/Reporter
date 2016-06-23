@@ -17,14 +17,8 @@ public class FinanceSource extends BaseEntity {
 	@Column(name = "SourceMonth")
 	private int sourceMonth;
 
-	@Column(name = "SAPFileName")
-	private String sapFileName;
-
 	@Column(name = "SAPFilePath")
 	private String sapFilePath;
-
-	@Column(name = "SalesFileName")
-	private String salesFileName;
 
 	@Column(name = "SalesFilePath")
 	private String salesFilePath;
@@ -51,28 +45,12 @@ public class FinanceSource extends BaseEntity {
 		this.sourceMonth = sourceMonth;
 	}
 
-	public String getSapFileName() {
-		return sapFileName;
-	}
-
-	public void setSapFileName(String sapFileName) {
-		this.sapFileName = sapFileName;
-	}
-
 	public String getSapFilePath() {
 		return sapFilePath;
 	}
 
 	public void setSapFilePath(String sapFilePath) {
 		this.sapFilePath = sapFilePath;
-	}
-
-	public String getSalesFileName() {
-		return salesFileName;
-	}
-
-	public void setSalesFileName(String salesFileName) {
-		this.salesFileName = salesFileName;
 	}
 
 	public String getSalesFilePath() {
