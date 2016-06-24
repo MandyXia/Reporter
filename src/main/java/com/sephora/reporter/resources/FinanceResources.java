@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -164,7 +165,7 @@ public class FinanceResources {
 	
 	@Path("/salestotal/year/{year}/month/{month}/type/{type}")
 	@POST
-	public Response setFinanceTotal(@PathParam("year") int year, @PathParam("month") int month, @PathParam("type") String type, @FormDataParam("value") double value) {
+	public Response setFinanceTotal(@PathParam("year") int year, @PathParam("month") int month, @PathParam("type") String type, @FormParam("value") double value) {
 		FinanceSource source = repo.findBySourceYearAndSourceMonth(year, month);
 		
 		if ("vip".equalsIgnoreCase(type)) {

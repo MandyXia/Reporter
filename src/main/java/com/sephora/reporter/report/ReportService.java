@@ -1,10 +1,12 @@
 package com.sephora.reporter.report;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +41,7 @@ public class ReportService {
 	private static final int START_ROW = 6;
 	private static final int START_COL = 1;
 	private static final CellRangeAddress TEMPLATE_RANGE = new CellRangeAddress(0, 39, 0, 0);
-	
+
 	public List<String> runTimeReport(FinanceSource[] fss, int[] stores, boolean isMonth) {
 		List<String> result = new ArrayList<>();
 		for (int store : stores) {
@@ -49,9 +51,19 @@ public class ReportService {
 	}
 
 	public String runTimeReportByStore(FinanceSource[] fss, int store, boolean isMonth) {
-		String foName = PathUtils.getRoot() + "/" + store + ".xlsx";
+		File folder = new File(PathUtils.getRoot() + "/reports");
+		if (!folder.exists()) {
+			folder.mkdirs();
+		}
+
+		Calendar c = Calendar.getInstance();
+		String suffix = String.valueOf(c.get(Calendar.YEAR)) + String.valueOf(c.get(Calendar.MONTH) + 1)
+				+ String.valueOf(c.get(Calendar.DATE)) + String.valueOf(c.get(Calendar.HOUR_OF_DAY))
+				+ String.valueOf(c.get(Calendar.MINUTE)) + String.valueOf(c.get(Calendar.SECOND));
+
+		String foName = PathUtils.getRoot() + "/reports/" + store + "-" + suffix + ".xlsx";
 		copyTemplateFile(getClass().getResourceAsStream("/ProfitTemplate.xlsx"), foName);
-		
+
 		int len = fss.length;
 		Workbook target = null;
 		try {
@@ -67,7 +79,8 @@ public class ReportService {
 			copyTemplateRange(target.getSheetAt(0), storeSheet);
 
 			SAPReader sr = new SAPReader(fss[i].getSapFilePath(), fss[i].getSourceYear(), fss[i].getSourceMonth());
-			SalesReader sl = new SalesReader(fss[i].getSalesFilePath(), fss[i].getSourceYear(), fss[i].getSourceMonth());
+			SalesReader sl = new SalesReader(fss[i].getSalesFilePath(), fss[i].getSourceYear(),
+					fss[i].getSourceMonth());
 			SupplierReader sp = new SupplierReader(fss[i].getSupplierPath());
 
 			SAPMonthRecord srrep = sr.read(store);
@@ -78,13 +91,13 @@ public class ReportService {
 			for (Cord cord : Cords.ALL) {
 				int rowOffset = cord.getRowOffset();
 				double rowVal = 0d;
-				
+
 				Row targetRow = storeSheet.getRow(START_ROW + rowOffset);
 				if (targetRow == null) {
 					targetRow = storeSheet.createRow(START_ROW + rowOffset);
 				}
 				Cell targetcell = targetRow.createCell(col, Cell.CELL_TYPE_NUMERIC);
-				
+
 				switch (cord.getFrom()) {
 				case Cord.FROM_SAP:
 					String sapName = cord.getRef();
@@ -97,7 +110,7 @@ public class ReportService {
 					} else {
 						sapNameSet.add(sapName);
 					}
-					
+
 					double midVal = 0d;
 					for (SAPRecord srrec : srrep.getRecords()) {
 						if (sapNameSet.contains(srrec.getCostElem())) {
@@ -109,7 +122,8 @@ public class ReportService {
 						}
 					}
 					rowVal = midVal;
-					System.out.println("Row " + (rowOffset + START_ROW) + " From SAP of [" + sapName + "] with value [" + rowVal + "]");
+					System.out.println("Row " + (rowOffset + START_ROW) + " From SAP of [" + sapName + "] with value ["
+							+ rowVal + "]");
 					break;
 				case Cord.FROM_SALES:
 					String refSale = cord.getRef();
@@ -126,7 +140,8 @@ public class ReportService {
 							rowVal = slrep.getCogsytd();
 						}
 					}
-					System.out.println("Row " + (rowOffset + START_ROW) + " From Sales of [" + refSale + "] with value [" + rowVal + "]");
+					System.out.println("Row " + (rowOffset + START_ROW) + " From Sales of [" + refSale
+							+ "] with value [" + rowVal + "]");
 					break;
 				case Cord.FROM_ALLOCATE:
 					String alloc = cord.getRef();
@@ -165,16 +180,16 @@ public class ReportService {
 		}
 
 		// This is important to evaluate them
-		XSSFFormulaEvaluator.evaluateAllFormulaCells((XSSFWorkbook)target);
+		XSSFFormulaEvaluator.evaluateAllFormulaCells((XSSFWorkbook) target);
 		try (FileOutputStream fo = new FileOutputStream(foName)) {
 			target.write(fo);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		return foName;
 	}
-	
+
 	private void copyTemplateFile(InputStream is, String outPath) {
 		try (FileOutputStream fo = new FileOutputStream(outPath)) {
 			byte[] buffer = new byte[8192];
@@ -185,7 +200,7 @@ public class ReportService {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	private void copyTemplateRange(Sheet origin, Sheet target) {
@@ -199,7 +214,7 @@ public class ReportService {
 				Cell cell = origin.getRow(r).getCell(c);
 				CellStyle style = cell.getCellStyle();
 				String text = cell.getStringCellValue();
-				
+
 				Cell tcell = target.createRow(r).createCell(c, cell.getCellType());
 				tcell.setCellStyle(style);
 				tcell.setCellValue(text);

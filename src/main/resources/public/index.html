@@ -5,12 +5,13 @@
 <title>Finance Reporter</title>
 <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <link href="bootstrap/css/bootstrap-table.min.css" rel="stylesheet">
+<link href="bootstrap/css/bootstrap-datetimepicker.min.css"
+	rel="stylesheet">
 <link href="common.css" rel="stylesheet">
 </head>
 
 <body class="main">
 	<div id="page">
-		<!-- header -->
 		<div id="header">
 			<div id="site-name">
 				<a href="index.html" title="" rel="home">Finance Reporter</a>
@@ -31,16 +32,23 @@
 					</button>
 					<span class="alert-body"></span>
 				</div>
+				<button type="button" class="btn btn-default" data-toggle="modal" data-target="#uploadModal">Input Sources</button>
+				<button type="button" class="btn btn-default" data-toggle="modal" data-target="#reportModal">Generate</button>
 
 				<table id="recordtable">
 					<thead>
 						<tr>
 							<th data-field="sourceDate">Month</th>
-							<th data-field="sapFile">SAP File Location</th>
-							<th data-field="salesFile">Sales File Location</th>
-							<th data-field="salesTotal">Sales Total</th>
+							<th data-field="sapReady">SAP File</th>
+							<th data-field="salesReady">Sales File</th>
+							<th data-field="supplierReady">Supplier File</th>
+							<th data-field="vip">VIP Disposition Total</th>
+							<th data-field="anim">Animation Revenues Total</th>
+							<th data-field="stock">Stock Depreciation Total</th>
+							<th data-field="display">Display Total</th>
+							<th data-field="ins">Insurance & Other Total</th>
+							<th data-field="tax">Taxes Total</th>
 							<th data-field="targetReports">Generated Target Reports</th>
-							<th data-field="actions">Actions</th>
 						</tr>
 					</thead>
 				</table>
@@ -49,37 +57,155 @@
 	</div>
 
 	<!-- Modal -->
-	<div class="modal fade" id="actionModal" tabindex="-1" role="dialog"
-		aria-labelledby="actionModalLabel">
-		<div class="modal-dialog" role="document">
-			<form id="modalform">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal"
-							aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-						<h4 class="modal-title" id="actionModalLabel"></h4>
+	<div class="modal fade" id="uploadModal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Input Sources</h4>
+				</div>
+				<div class="modal-body">
+					<div class="alert alert-success alert-dismissible" role="alert" style="display:none" id="msgok">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<span id="msgokmsg"></span>
 					</div>
-					<div class="modal-body">
-						<div class="alert alert-danger" role="alert" style="display: none"
-							id="formmsg">Please input all required fields!</div>
-						<div id="modal-body-content"></div>
+					<div class="alert alert-danger" role="alert" style="display:none" id="msgerr">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<span id="msgerrmsg"></span>
 					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-						<button type="button" class="btn btn-primary has-spinner"
-							id="confirm"
-							data-loading-text="<span class='glyphicon-left glyphicon glyphicon-refresh spinning'></span>... Processing ...">Confirm</button>
+					<div id="modal-body-content">
+						<form class="form-horizontal" enctype="multipart/form-data">
+							<div class="form-group">
+								<label for="monthPicker" class="col-sm-3 control-label">Source Month</label>
+								<div class="col-sm-7">
+									<input type="text" id="monthPicker" class="form-control" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="sapfile" class="col-sm-3 control-label">SAP File</label>
+								<div class="col-sm-7">
+									<input type="file" id="sapfile" class="form-control" />
+								</div>
+								<button type="button" class="btn btn-default" id="sapbtn" data-loading-text="<span class='glyphicon-left glyphicon glyphicon-refresh spinning'></span>">Upload</button>
+							</div>
+							<div class="form-group">
+								<label for="salesfile" class="col-sm-3 control-label">Sales File</label>
+								<div class="col-sm-7">
+									<input type="file" id="salesfile" class="form-control" />
+								</div>
+								<button type="button" class="btn btn-default" id="salesbtn">Upload</button>
+							</div>
+							<div class="form-group">
+								<label for="supplierfile" class="col-sm-3 control-label">Supplier File</label>
+								<div class="col-sm-7">
+									<input type="file" id="supplierfile" class="form-control" />
+								</div>
+								<button type="button" class="btn btn-default" id="supplierbtn">Upload</button>
+							</div>
+							<div class="form-group">
+								<label for="viptotal" class="col-sm-3 control-label">VIP Disposition</label>
+								<div class="col-sm-7">
+									<input type="text" id="viptotal" class="form-control" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="animtotal" class="col-sm-3 control-label">Animation Revenue</label>
+								<div class="col-sm-7">
+									<input type="text" id="animtotal" class="form-control" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="stocktotal" class="col-sm-3 control-label">Stock Depreciation</label>
+								<div class="col-sm-7">
+									<input type="text" id="stocktotal" class="form-control" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="displaytotal" class="col-sm-3 control-label">Display</label>
+								<div class="col-sm-7">
+									<input type="text" id="displaytotal" class="form-control" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="instotal" class="col-sm-3 control-label">Insurance & Other</label>
+								<div class="col-sm-7">
+									<input type="text" id="instotal" class="form-control" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="taxtotal" class="col-sm-3 control-label">Taxes</label>
+								<div class="col-sm-7">
+									<input type="text" id="taxtotal" class="form-control" />
+								</div>
+							</div>
+							<div class="form-group" style="text-align:right">
+								<div class="col-sm-7"></div>
+								<div class="col-sm-3">
+									<button type="button" class="btn btn-default" id="updtotalbtn">Update</button>
+								</div>
+							</div>
+						</form>
 					</div>
 				</div>
-			</form>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Modal -->
+	<div class="modal fade" id="reportModal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Generate Report</h4>
+				</div>
+				<div class="modal-body">
+					<div class="alert alert-success alert-dismissible" role="alert" style="display:none" id="rmsgok">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<span id="rmsgokmsg"></span>
+					</div>
+					<div class="alert alert-danger" role="alert" style="display:none" id="rmsgerr">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<span id="rmsgerrmsg"></span>
+					</div>
+					<div id="modal-body-content">
+						<form class="form-horizontal">
+							<div class="form-group">
+								<label for="rmonthPicker" class="col-sm-3 control-label">Target Month</label>
+								<div class="col-sm-7">
+									<input type="text" id="rmonthPicker" class="form-control" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="targetStore" class="col-sm-3 control-label">Store</label>
+								<div class="col-sm-7">
+									<input type="text" id="targetStore" class="form-control" />
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" id="generatebtn">Generate</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
 		</div>
 	</div>
 
 	<script src="js/jquery-1.11.3.min.js" type="text/javascript"></script>
 	<script src="bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-	<script src="bootstrap/js/bootstrap-table.min.js" type="text/javascript"></script>
+	<script src="bootstrap/js/bootstrap-table.min.js"
+		type="text/javascript"></script>
+	<script src="bootstrap/js/bootstrap-datetimepicker.min.js"
+		type="text/javascript"></script>
 	<script src="bootstrap/js/moment.js" type="text/javascript"></script>
 	<script src="js/index.js" type="text/javascript"></script>
 </body>

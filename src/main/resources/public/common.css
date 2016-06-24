@@ -154,12 +154,6 @@ h1{
 	text-decoration:none;
 }
 
-.form-control{
-	margin-left:10px;
-	width:auto;
-	display:inline-block;
-}
-
 #container .row{
 	margin-bottom:15px;
 }
@@ -280,11 +274,4 @@ td img{
 .userspan #user{
 	font-weight:bold;
 	margin-right:5px;
-}
-.control-group{
-	margin-top:15px;
-}
-
-.control-label{
-	width:80px;
 }
