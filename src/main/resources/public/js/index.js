@@ -32,6 +32,19 @@ $(function() {
 		uploadfile(btn, "/rest/finance/supplier", "supplierfile");
 	});
 	
+	$("#districtbtn").on("click", function() {
+		var btn = $(this);
+		uploadfile(btn, "/rest/finance/district", "districtfile");
+	});
+	
+	$("#inputClosebtn").on("click", function() {
+		initTable(true);
+	});
+	
+	$("#refreshbtn").on("click", function() {
+		initTable(true);
+	});
+	
 	$("#updtotalbtn").on("click", function() {
 		var btn = $(this);
 		
@@ -45,18 +58,71 @@ $(function() {
 			url += sp[0];
 			url += "/month/";
 			url += sp[1];
-			url += "/type/";
 			
-			$.when(updateTotal(url, "viptotal", "vip"),
-					updateTotal(url, "animtotal", "anim"),
-					updateTotal(url, "stocktotal", "stock"),
-					updateTotal(url, "displaytotal", "display"),
-					updateTotal(url, "instotal", "ins"),
-					updateTotal(url, "taxtotal", "tax")).done(function(r1, r2, r3, r4, r5, r6) {
-						showOK("All total fields are updated successfully.");
-						btn.html("Update");
-						btn.css("disabled", false);
+			var vipval = $("#viptotal").val();
+			var animval = $("#animtotal").val();
+			var stockval = $("#stocktotal").val();
+			var displayval = $("#displaytotal").val();
+			var insval = $("#instotal").val();
+			var taxval = $("#taxtotal").val();
+			
+			$.ajax({
+				url: url,
+				method: "POST",
+				data: {
+					vip: vipval,
+					anim: animval,
+					stock: stockval,
+					display: displayval,
+					ins: insval,
+					tax: taxval
+				},
+				success: function(result) {
+					showOK(result);
+					btn.html("Update");
+					btn.css("disabled", false);
+				},
+				error: function(err) {
+					showErr(err);
+					btn.html("Update");
+					btn.css("disabled", false);
+				}
+			});
+		}
+	});
+	
+	$("#rmonthPicker").datetimepicker().on("changeDate", function(ev) {
+		var targetmon = $("#rmonthPicker").val();
+		if (targetmon != "") {
+			var sp = targetmon.split("-");
+			$.ajax({
+				url: "/rest/finance/district/year/" + sp[0] + "/month/" + sp[1],
+				method: "GET",
+				success: function(result) {
+					var optdata = {};
+					for (var i in result) {
+						if (result[i].area == "") {
+							continue;
+						}
+						var codeary = optdata[result[i].area] || [];
+						codeary.push(result[i].code);
+						optdata[result[i].area] = codeary;
+					}
+					
+					for (var j in optdata) {
+						var grp = $('<optgroup>', { label: j });
+						for (var k in optdata[j]) {
+							grp.append($('<option>', { text: optdata[j][k], value: optdata[j][k]}));
+						}
+						$("#targetStore").append(grp);
+					}
+					
+					$("#targetStore").multiselect({
+						enableFiltering: true,
+						enableClickableOptGroups: true
 					});
+				}
+			});
 		}
 	});
 	
@@ -116,6 +182,7 @@ function initTable(reload) {
 					'sapReady' : records.sapFilePath != null ? createOK() : createNO(),
 					'salesReady' : records.salesFilePath != null ? createOK() : createNO(),
 					'supplierReady' : records.supplierPath != null ? createOK() : createNO(),
+					"districtReady" : records.districtPath != null ? createOK() : createNO(),
 					"vip" : records.viptotal,
 					"anim" : records.animtotal,
 					"stock" : records.stocktotal,
@@ -196,19 +263,4 @@ var uploadfile = function(btn, url, fileid) {
 		btn.html("Upload");
 		btn.css("disabled", false);
 	}
-};
-
-var updateTotal = function(baseurl, compid, comptype) {
-	var compval = $("#" + compid).val();
-	if (compval == "") {
-		compval = 0;
-	}
-	
-	return $.ajax({
-		url: baseurl + comptype,
-		method: "POST",
-		data: {
-			value: compval
-		}
-	});
 };
