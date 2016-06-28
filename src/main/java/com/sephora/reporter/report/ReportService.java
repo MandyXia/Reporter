@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
@@ -42,12 +41,42 @@ public class ReportService {
 	private static final int START_COL = 1;
 	private static final CellRangeAddress TEMPLATE_RANGE = new CellRangeAddress(0, 39, 0, 0);
 
-	public List<String> runTimeReport(FinanceSource[] fss, int[] stores, boolean isMonth) {
-		List<String> result = new ArrayList<>();
-		for (int store : stores) {
-			result.add(runTimeReportByStore(fss, store, isMonth));
+	public String runTimeReport(FinanceSource[] fss, List<Integer> stores, boolean isMonth) {
+		File folder = new File(PathUtils.getRoot() + "/reports");
+		if (!folder.exists()) {
+			folder.mkdirs();
 		}
-		return result;
+
+		Calendar c = Calendar.getInstance();
+		String suffix = String.valueOf(c.get(Calendar.YEAR)) + String.valueOf(c.get(Calendar.MONTH) + 1)
+				+ String.valueOf(c.get(Calendar.DATE)) + String.valueOf(c.get(Calendar.HOUR_OF_DAY))
+				+ String.valueOf(c.get(Calendar.MINUTE)) + String.valueOf(c.get(Calendar.SECOND));
+
+		String foName = PathUtils.getRoot() + "/reports/" + stores.size() + "stores-" + suffix + ".xlsx";
+		copyTemplateFile(getClass().getResourceAsStream("/ProfitTemplate.xlsx"), foName);
+		Workbook target = null;
+		try {
+			target = WorkbookFactory.create(new FileInputStream(foName));
+		} catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
+			e.printStackTrace();
+		}
+		Sheet storeSheet = target
+				.createSheet(stores.size() + "stores-" + fss[0].getSourceYear() + "-" + fss[0].getSourceMonth());
+		copyTemplateRange(target.getSheetAt(0), storeSheet);
+
+		int storeIndex = 0;
+		for (int store : stores) {
+			runOneStoreReport(fss, store, storeIndex++, isMonth, storeSheet);
+		}
+
+		// This is important to evaluate them
+		XSSFFormulaEvaluator.evaluateAllFormulaCells((XSSFWorkbook) target);
+		try (FileOutputStream fo = new FileOutputStream(foName)) {
+			target.write(fo);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return foName;
 	}
 
 	public String runTimeReportByStore(FinanceSource[] fss, int store, boolean isMonth) {
@@ -64,7 +93,6 @@ public class ReportService {
 		String foName = PathUtils.getRoot() + "/reports/" + store + "-" + suffix + ".xlsx";
 		copyTemplateFile(getClass().getResourceAsStream("/ProfitTemplate.xlsx"), foName);
 
-		int len = fss.length;
 		Workbook target = null;
 		try {
 			target = WorkbookFactory.create(new FileInputStream(foName));
@@ -72,12 +100,79 @@ public class ReportService {
 			e.printStackTrace();
 		}
 
-		int col = START_COL;
-		for (int i = 0; i < len; i++) {
-			/* create the sheet for this store */
-			Sheet storeSheet = target.createSheet(store + "-" + fss[i].getSourceYear() + "-" + fss[i].getSourceMonth());
-			copyTemplateRange(target.getSheetAt(0), storeSheet);
+		Sheet storeSheet = target.createSheet(store + "-" + fss[0].getSourceYear() + "-" + fss[0].getSourceMonth());
+		copyTemplateRange(target.getSheetAt(0), storeSheet);
+		runOneStoreReport(fss, store, 0, isMonth, storeSheet);
 
+		// This is important to evaluate them
+		XSSFFormulaEvaluator.evaluateAllFormulaCells((XSSFWorkbook) target);
+		try (FileOutputStream fo = new FileOutputStream(foName)) {
+			target.write(fo);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return foName;
+	}
+
+	private void copyTemplateFile(InputStream is, String outPath) {
+		try (FileOutputStream fo = new FileOutputStream(outPath)) {
+			byte[] buffer = new byte[8192];
+			int len = -1;
+			while ((len = is.read(buffer, 0, 8192)) != -1) {
+				fo.write(buffer, 0, len);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private void copyTemplateRange(Sheet origin, Sheet target) {
+		int startRow = TEMPLATE_RANGE.getFirstRow();
+		int endRow = TEMPLATE_RANGE.getLastRow();
+		int startCol = TEMPLATE_RANGE.getFirstColumn();
+		int endCol = TEMPLATE_RANGE.getLastColumn();
+
+		for (int r = startRow; r <= endRow; r++) {
+			for (int c = startCol; c <= endCol; c++) {
+				Cell cell = origin.getRow(r).getCell(c);
+				CellStyle style = cell.getCellStyle();
+				String text = cell.getStringCellValue();
+
+				Cell tcell = target.createRow(r).createCell(c, cell.getCellType());
+				tcell.setCellStyle(style);
+				tcell.setCellValue(text);
+			}
+		}
+	}
+
+	private boolean SapContains(String sapelem, Set<String> candidate) {
+		for (String ca : candidate) {
+			if (sapelem.toLowerCase().contains(ca.toLowerCase())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean runOneStoreReport(FinanceSource[] fss, int store, int storeIndex, boolean isMonth,
+			Sheet targetSheet) {
+		int col = START_COL + storeIndex;
+		int len = fss.length;
+		String distFile = fss[0].getDistrictPath();
+		DistrictReader dr = new DistrictReader(distFile);
+		Map<Integer, String> drr = dr.readAllNames();
+		String storeName = drr.get(store);
+		
+		Row nameRow = targetSheet.getRow(START_ROW - 2);
+		if (nameRow == null) {
+			nameRow = targetSheet.createRow(START_ROW - 2);
+		}
+		Cell namecell = nameRow.createCell(col, Cell.CELL_TYPE_STRING);
+		namecell.setCellValue(storeName);
+		
+		for (int i = 0; i < len; i++) {
 			SAPReader sr = new SAPReader(fss[i].getSapFilePath(), fss[i].getSourceYear(), fss[i].getSourceMonth());
 			SalesReader sl = new SalesReader(fss[i].getSalesFilePath(), fss[i].getSourceYear(),
 					fss[i].getSourceMonth());
@@ -92,9 +187,9 @@ public class ReportService {
 				int rowOffset = cord.getRowOffset();
 				double rowVal = 0d;
 
-				Row targetRow = storeSheet.getRow(START_ROW + rowOffset);
+				Row targetRow = targetSheet.getRow(START_ROW + rowOffset);
 				if (targetRow == null) {
-					targetRow = storeSheet.createRow(START_ROW + rowOffset);
+					targetRow = targetSheet.createRow(START_ROW + rowOffset);
 				}
 				Cell targetcell = targetRow.createCell(col, Cell.CELL_TYPE_NUMERIC);
 
@@ -105,15 +200,16 @@ public class ReportService {
 					if (sapName.contains("/")) {
 						String[] allnames = sapName.split("\\/");
 						for (String an : allnames) {
-							sapNameSet.add(an);
+							sapNameSet.add(an.toLowerCase());
 						}
 					} else {
-						sapNameSet.add(sapName);
+						sapNameSet.add(sapName.toLowerCase());
 					}
 
 					double midVal = 0d;
 					for (SAPRecord srrec : srrep.getRecords()) {
-						if (sapNameSet.contains(srrec.getCostElem())) {
+						if (sapNameSet.contains(srrec.getCostElem().toLowerCase())
+								|| SapContains(srrec.getCostElem().toLowerCase(), sapNameSet)) {
 							if (isMonth) {
 								midVal += srrec.getMtd();
 							} else {
@@ -179,46 +275,6 @@ public class ReportService {
 			}
 		}
 
-		// This is important to evaluate them
-		XSSFFormulaEvaluator.evaluateAllFormulaCells((XSSFWorkbook) target);
-		try (FileOutputStream fo = new FileOutputStream(foName)) {
-			target.write(fo);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return foName;
-	}
-
-	private void copyTemplateFile(InputStream is, String outPath) {
-		try (FileOutputStream fo = new FileOutputStream(outPath)) {
-			byte[] buffer = new byte[8192];
-			int len = -1;
-			while ((len = is.read(buffer, 0, 8192)) != -1) {
-				fo.write(buffer, 0, len);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	private void copyTemplateRange(Sheet origin, Sheet target) {
-		int startRow = TEMPLATE_RANGE.getFirstRow();
-		int endRow = TEMPLATE_RANGE.getLastRow();
-		int startCol = TEMPLATE_RANGE.getFirstColumn();
-		int endCol = TEMPLATE_RANGE.getLastColumn();
-
-		for (int r = startRow; r <= endRow; r++) {
-			for (int c = startCol; c <= endCol; c++) {
-				Cell cell = origin.getRow(r).getCell(c);
-				CellStyle style = cell.getCellStyle();
-				String text = cell.getStringCellValue();
-
-				Cell tcell = target.createRow(r).createCell(c, cell.getCellType());
-				tcell.setCellStyle(style);
-				tcell.setCellValue(text);
-			}
-		}
+		return true;
 	}
 }

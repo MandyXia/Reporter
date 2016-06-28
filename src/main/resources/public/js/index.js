@@ -134,24 +134,51 @@ $(function() {
 		var mon = $("#rmonthPicker").val();
 		var storecode = $("#targetStore").val();
 		
-		if (mon != "" && storecode != "") {
+		if (mon != "" && storecode != null) {
 			var sp = mon.split("-");
-			$.ajax({
-				url: "/rest/report/time/year/" + sp[0] + "/month/" + sp[1] + "/store/" + storecode,
-				method: "GET",
-				success: function(result) {
-					$("#rmsgokmsg").html(result);
-					$("#rmsgok").css("display", "block");
-					btn.css("disabled", false);
-					btn.html("Generate");
-				},
-				error: function(err) {
-					$("#rmsgerrmsg").html(err);
-					$("#rmsgerr").css("display", "block");
-					btn.css("disabled", false);
-					btn.html("Generate");
+			
+			if (storecode.length > 1) {
+				var queryparam = "";
+				for (var sci in storecode) {
+					if (sci > 0) {
+						queryparam += "&";
+					}
+					queryparam += "sc=" + storecode[sci];
 				}
-			});
+				$.ajax({
+					url: "/rest/report/time/year/" + sp[0] + "/month/" + sp[1] + "/stores?" + queryparam,
+					method: "GET",
+					success: function(result) {
+						$("#rmsgokmsg").html(result);
+						$("#rmsgok").css("display", "block");
+						btn.css("disabled", false);
+						btn.html("Generate");
+					},
+					error: function(err) {
+						$("#rmsgerrmsg").html(err);
+						$("#rmsgerr").css("display", "block");
+						btn.css("disabled", false);
+						btn.html("Generate");
+					}
+				});
+			} else {
+				$.ajax({
+					url: "/rest/report/time/year/" + sp[0] + "/month/" + sp[1] + "/store/" + storecode,
+					method: "GET",
+					success: function(result) {
+						$("#rmsgokmsg").html(result);
+						$("#rmsgok").css("display", "block");
+						btn.css("disabled", false);
+						btn.html("Generate");
+					},
+					error: function(err) {
+						$("#rmsgerrmsg").html(err);
+						$("#rmsgerr").css("display", "block");
+						btn.css("disabled", false);
+						btn.html("Generate");
+					}
+				});
+			}
 		} else {
 			$("#rmsgerrmsg").html("Month and Store code must be selected");
 			$("#rmsgerr").css("display", "block");

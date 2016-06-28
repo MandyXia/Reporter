@@ -9,6 +9,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -32,6 +33,35 @@ public class ReportResources {
 	
 	@Autowired
 	private FinanceReportRepository reportRepo;
+	
+	@GET
+	@Path("/time/year/{year}/month/{month}/stores")
+	public String runMultiStoreReport(@PathParam("year") int year, @PathParam("month") int month, @QueryParam("sc") List<Integer> storecodes) {
+		if (year == 0 || month == 0 || storecodes == null || storecodes.size() <= 0) {
+			return "year, month, store codes are mandatory";
+		}
+		
+		FinanceSource src = repo.findBySourceYearAndSourceMonth(year, month);
+		if (src != null && src.getSapFilePath() != null && src.getSalesFilePath() != null) {
+			String targetFile = svc.runTimeReport(new FinanceSource[]{src}, storecodes, true);
+			FinanceReport report = new FinanceReport();
+			report.setTargetFile(targetFile);
+			report.setGenerateDate(new Date(new java.util.Date().getTime()));
+			reportRepo.saveAndFlush(report);
+			
+			List<FinanceReport> reports = src.getTargetReports();
+			if (reports == null) {
+				reports = new ArrayList<>();
+				src.setTargetReports(reports);
+			}
+			reports.add(report);
+			repo.saveAndFlush(src);
+			
+			return targetFile;
+		} else {
+			return "No Source Available";
+		}
+	}
 	
 	@GET
 	@Path("/time/year/{year}/month/{month}/store/{store}")
